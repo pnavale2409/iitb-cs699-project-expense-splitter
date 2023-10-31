@@ -1,58 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Home Page</title>
-    <style>
-        /* Add your CSS styles here */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        header, footer {
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-        }
-        section {
-            padding: 20px;
-            background-color: #f0f0f0;
-            border: 1px solid #ddd;
-        }
-        .top {
-            display: flex;
-            justify-content: space-between;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Expense Splitter</title>
 </head>
 <body>
-    <header>
-        <h1>Welcome to Our Website</h1>
-    </header>
-    
-    <section class="top">
-        <div>
-            <h2>Section 1</h2>
-            <p>This is the content of the first section.</p>
+    <h1>Expense Splitter</h1>
+    <div id="expenses">
+        <div id="expense-list">
+            <h2>Expenses</h2>
+            <ul id="expenses-list">
+                <!-- Expense items will be added here dynamically using JavaScript -->
+
+            </ul>
         </div>
-        <div>
-            <h2>Section 2</h2>
-            <p>This is the content of the second section.</p>
+        <div id="expense-form">
+            <h2>Add Expense</h2>
+            <input type="text" id="expense-name" placeholder="Expense Name">
+            <input type="number" id="expense-amount" placeholder="Amount">
+            <input type="text" id="payer" placeholder="Payer Name">
+            <button id="add-expense">Add Expense</button>
         </div>
-    </section>
-    
-    <section>
-        <h2>Section 3</h2>
-        <p>This is the content of the third section.</p>
-    </section>
-    
-    <section>
-        <h2>Section 4</h2>
-        <p>This is the content of the fourth section.</p>
-    </section>
-    
-    <footer>
-        <p>&copy; 2023 Your Company. All rights reserved.</p>
-    </footer>
+    </div>
+    <div id="results">
+        <h2>Expense Summary</h2>
+        <div id="summary">
+            <!-- Expense summary will be displayed here dynamically using JavaScript -->
+        </div>
+        <h2>Expense Breakdown</h2>
+        <div id="breakdown">
+            <!-- Detailed expense breakdown will be displayed here dynamically using JavaScript -->
+        </div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
+
