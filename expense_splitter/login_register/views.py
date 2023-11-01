@@ -22,7 +22,7 @@ def login(request):
 
     if (user is not None):
         auth.login(request,user)
-        return redirect('')       
+        return redirect('/home')       
     else:
         return HttpResponse("Invalid login credentials")
 
