@@ -1,11 +1,9 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="style.css">
     <title>Expense Splitter</title>
 </head>
 <body>
@@ -25,7 +23,9 @@
             <input type="text" id="payer" placeholder="Payer Name">
             <button id="add-expense">Add Expense</button>
         </div>
+       
     </div>
+    <div id="group-section">
     <div id="results">
         <h2>Expense Summary</h2>
         <div id="summary">
@@ -35,9 +35,17 @@
         <div id="breakdown">
             <!-- Detailed expense breakdown will be displayed here dynamically using JavaScript -->
         </div>
+         
     </div>
-
-    <script src="{% static 'js/script.js' %}"></script>
+    <div id="expense-form">
+            <h2>Create Group</h2>
+            <input type="text" id="expense-name" placeholder="Group Name">
+            <input type="number" id="expense-amount" placeholder="Total Participants">
+            <input type="text" id="payer" placeholder="Participants name">
+            <button id="add-expense">Create Group</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
 
