@@ -22,7 +22,7 @@ def login(request):
 
     if (user is not None):
         auth.login(request,user)
-        return redirect('/home')       
+        return redirect('')       
     else:
         return HttpResponse("Invalid login credentials")
 
@@ -31,15 +31,23 @@ def getRegister(request):
 
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
+        # form = UserCreationForm(request.POST)
+        user_data = request.POST.dict()
+        username = user_data.get("username")
+        f_name = user_data.get("f_name")
+        l_name = user_data.get("l_name")
+        email = user_data.get("email")
+        password = user_data.get("password")
+        user = User.objects.create_user(username, email,password)
+        user.first_name = f_name
+        user.last_name = l_name
+        user.save()
             # Log in the user after registration
             # login(request, user)
-            return redirect('/login')  # Replace 'home' with the URL name for your home page
+        return redirect('/getLogin')  # Replace 'home' with the URL name for your home page
     else:
         form = UserCreationForm()
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'register.html')
 
 
 # def home(request):
