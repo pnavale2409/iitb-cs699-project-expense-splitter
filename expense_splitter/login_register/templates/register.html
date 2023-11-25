@@ -51,5 +51,12 @@
         <br><br>
         <center><button type="submit">Register</button></center>
     </form>
+
+    <div>
+        {% for message in messages %}
+        <h3>{{message}}</h3>
+        {% endfor %}
+    </div>
+
 </body>
 </html>

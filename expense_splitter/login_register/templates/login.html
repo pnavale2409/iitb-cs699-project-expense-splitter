@@ -18,6 +18,12 @@
             <button type="submit" style="background: blue; color:white">Login</button>
         </form>
         <p>Don't have an account? <a href="/register/">Register</a></p>
+
+        <div>
+            {% for message in messages %}
+            <h3>{{message}}</h3>
+            {% endfor %}
+        </div>
     </div>
 </center>
 </body>
