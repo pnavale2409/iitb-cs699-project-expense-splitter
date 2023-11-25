@@ -1,0 +1,129 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ group.name }} Details</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        header {
+            background-color: #4285f4;
+            color: #fff;
+            padding: 0px;
+            text-align: center;
+            margin: 0;
+    
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        .success-message {
+            color: green;
+        }
+
+        .warning-message {
+            color: orange;
+        }
+
+        .error-message {
+            color: red;
+        }
+
+        h2, h3, p, li {
+            margin-bottom: 10px;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4285f4;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>{{ group.name }} Details</h1>
+    </header>
+
+    <div class="container">
+
+        <h3>Group Members:</h3>
+        <ul>
+            {% for member in group_members %}
+                <li>{{ member.member.username }}</li>
+            {% endfor %}
+        </ul>
+
+        <form method="post" action="add_member/">
+            {% csrf_token %}
+            <label for="username">Add Member:</label>
+            <input type="text" id="username" name="username" required>
+            <button type="submit">Add</button>
+        </form>
+
+        <div>
+            {% for message in messages %}
+                <p class="{% if message.tags == 'success' %}success-message{% elif message.tags == 'warning' %}warning-message{% elif message.tags == 'error' %}error-message{% endif %}">{{ message }}</p>
+            {% endfor %}
+        </div>
+
+        <h3>Total Expense: ${{ total_expense }}</h3>
+
+        <h2>Expenses in this Group</h2>
+        <ul>
+            {% for item in expenses_with_payers %}
+                <li>
+                    {{ item.expense.description }} - Amount: ${{ item.expense.amount }} - Payer: {{ item.payer_name }}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Display user balance -->
+        <p>Your balance in this group: ${{ user_balance }}</p>
+
+    </div>
+
+</body>
+
+</html>

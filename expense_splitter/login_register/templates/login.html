@@ -1,11 +1,103 @@
+{% load static %}
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            
+        }
+
+        header {
+            background-color: #4285f4;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            width: 100%;
+            margin: 0;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .container {
+            border: 2px solid;
+            width: 40%;
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        form label {
+            margin-bottom: 10px;
+            display: block;
+            font-weight: bold;
+        }
+
+        form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4285f4;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+
+        p {
+            margin-top: 20px;
+        }
+
+        a {
+            color: #4285f4;
+            text-decoration: none;
+        }
+
+        div.message-container {
+            margin-top: 20px;
+        }
+
+        div.message-container h3 {
+            color: #4285f4;
+        }
+    </style>
+
     <title>Login Page</title>
 </head>
+
 <body>
-    <center>
-    <div class="container" style="border: 2px solid; width: 40%; margin-top: 170px; background-color: #f0f0f0">
+
+    <header>
+        <h1>Login Page</h1>
+    </header>
+
+    <div class="container">
         <h2>Login</h2>
         <form method="post" action="/login/">
             {% csrf_token %}
@@ -15,16 +107,17 @@
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" placeholder="Enter your password" required>
             <br><br>
-            <button type="submit" style="background: blue; color:white">Login</button>
+            <button type="submit">Login</button>
         </form>
         <p>Don't have an account? <a href="/register/">Register</a></p>
 
-        <div>
+        <div class="message-container">
             {% for message in messages %}
-            <h3>{{message}}</h3>
+                <h3>{{ message }}</h3>
             {% endfor %}
         </div>
     </div>
-</center>
+
 </body>
+
 </html>
