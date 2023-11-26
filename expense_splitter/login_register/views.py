@@ -9,29 +9,109 @@ from django.contrib import messages
 from .models import Group, GroupMember, Expense
 from django import forms
 from django.db import models
+import matplotlib.pyplot as plt
+import matplotlib
+from io import BytesIO
+import base64
 
-# Create your views here.
+matplotlib.use('Agg')
+
+
 @login_required(login_url='/login/')
 def home(request):
-    # Retrieve user data from the database
-    user_groups = Group.objects.filter(groupmember__member=request.user)
     
-    # Check if the user is a member of any groups
+    user_groups = Group.objects.filter(groupmember__member=request.user)
+
+    
     if user_groups.exists():
         user_memberships = User.objects.filter(groupmember__group__in=user_groups)
-        
-        # Pass user data to the template
+   
+        user_expenses = Expense.objects.filter(payer=request.user)
+       
+        descriptions = [expense.description for expense in user_expenses]
+        amounts = [expense.amount for expense in user_expenses]
+
+        fig, ax = plt.subplots(figsize=(5.6, 5))
+
+        ax.bar(descriptions, amounts,color='#4285f4')
+
+        ax.set_xlabel('Expense Descriptions')
+        ax.set_ylabel('Amount ($)')
+        ax.set_title('User Expenses')
+
+        img_data1 = BytesIO()
+        plt.savefig(img_data1, format='png')
+        plt.close()
+
+        img_data1.seek(0)
+        expense_plot = base64.b64encode(img_data1.getvalue()).decode()
+
+        user_groups = Group.objects.filter(groupmember__member=request.user)
+
+        group_names = []
+        total_expenses = []
+
+        for group in user_groups:
+            group_total_expense = Expense.objects.filter(group=group, payer=request.user).aggregate(total_expense=models.Sum('amount'))['total_expense'] or 0
+            group_names.append(group.name)
+            total_expenses.append(group_total_expense)
+
+        fig, ax = plt.subplots(figsize=(5.6, 5))
+
+        ax.bar(group_names, total_expenses,color='yellow')
+
+        ax.set_xlabel('Groups Names')
+        ax.set_ylabel('Total Expenses ($)')
+        ax.set_title('Total Expenses in Each Group')
+
+        img_data2 = BytesIO()
+        plt.savefig(img_data2, format='png')
+        plt.close()
+
+        img_data2.seek(0)
+        group_expense_plot = base64.b64encode(img_data2.getvalue()).decode()
+
+        user_groups = Group.objects.filter(groupmember__member=request.user)
+
+        group_names = []
+        balance = []
+
+        for group in user_groups:
+            group_members = GroupMember.objects.filter(group=group).count()
+            user_total_expense = Expense.objects.filter(group=group, payer=request.user).aggregate(total_expense=models.Sum('amount'))['total_expense'] or 0
+            total_expense = Expense.objects.filter(group=group).aggregate(total_expense=models.Sum('amount'))['total_expense'] or 0
+            user_share = total_expense /group_members if group_members > 0 else 0
+            user_balance=user_total_expense-user_share
+            group_names.append(group.name)
+            balance.append(user_balance)
+
+        colors = ['green' if b >= 0 else 'red' for b in balance]
+
+        fig, ax = plt.subplots(figsize=(5.6, 5))
+
+        ax.bar(group_names, balance,color=colors)
+
+        ax.set_xlabel('Group Names')
+        ax.set_ylabel('Balance ($)')
+        ax.set_title('User balance in Each Group')
+
+
+        img_data3 = BytesIO()
+        plt.savefig(img_data3, format='png')
+        plt.close()
+
+        img_data3.seek(0)
+        balance_plot = base64.b64encode(img_data3.getvalue()).decode()
+
         context = {
             'user_groups': user_groups,
             'user_memberships': user_memberships,
+            'expense_plot': expense_plot,
+            'group_expense_plot':group_expense_plot,
+            'balance_plot':balance_plot,
         }
-
-        # Fetch all groups for the groups_list
-        
-
         return render(request, 'home.html', context)
     else:
-        # If the user is not a member of any groups, handle it accordingly
         return render(request, 'home.html')
 
 def login(request):
@@ -53,7 +133,6 @@ def login(request):
 
 def register(request):
     if request.method == 'POST':
-        # form = UserCreationForm(request.POST)
         user_data = request.POST.dict()
         username = user_data.get("username")
         f_name = user_data.get("f_name")
@@ -71,9 +150,7 @@ def register(request):
             user = User.objects.create_user(username=username, password=password, email=email, first_name = f_name, last_name=l_name)
             user.save()
             print('User created')
-            # Log in the user after registration
-            # login(request, user)
-            return redirect('/login')  # Replace 'home' with the URL name for your home page
+            return redirect('/login')  
     else:
         form = UserCreationForm()
     return render(request, 'register.html')
@@ -91,7 +168,6 @@ def create_group(request):
         form_data = request.POST.dict()
         group_name = form_data.get('g_name')
 
-        # Check if the group with the same name already exists
         existing_group = Group.objects.filter(name=group_name).first()
         if existing_group:
             messages.error(request, f'A group with the name "{group_name}" already exists.')
@@ -100,11 +176,10 @@ def create_group(request):
         group = Group(name=group_name)
         group.save()
        
-        # Add the current user as a member of the group
         GroupMember.objects.create(group=group, member=request.user)
 
         messages.success(request, f'The group "{group_name}" has been created successfully.')
-        return redirect('/')  # Replace 'home' with the name of your home view
+        return redirect('/') 
     else:
        
         form = CreateGroupForm()
@@ -117,16 +192,13 @@ def group_details(request, group_id):
     group_members = GroupMember.objects.filter(group=group)
     expenses = Expense.objects.filter(group=group)
 
-     # Calculate total expense and user share
     total_expense = expenses.aggregate(total_expense=models.Sum('amount'))['total_expense'] or 0
     user_share = total_expense / len(group_members) if len(group_members) > 0 else 0
 
-    # Calculate how much the current user owes or is owed
     user_expenses = expenses.filter(payer=request.user)
     user_total_expense = user_expenses.aggregate(total_expense=models.Sum('amount'))['total_expense'] or 0
     user_balance = user_total_expense - user_share
 
-    # Fetch expenses with payer names
     expenses_with_payers = []
     for expense in expenses:
         payer_name = expense.payer.username
@@ -162,7 +234,6 @@ def add_expense(request):
             try:
                 group = Group.objects.get(name=group_name, groupmember__member=request.user)
 
-                # Assuming you have a ForeignKey from Expense to Group
                 expense = Expense(description=description, amount=amount, group=group, payer=request.user)
                 expense.save()
 
@@ -173,15 +244,9 @@ def add_expense(request):
                 messages.error(request, 'Group does not exist.')
                 return redirect('/')
 
-            return redirect('/')
-
+            
     else:
         expense_form = ExpenseForm()
-
-    context = {
-        'user_groups': user_groups,
-        'expense_form': expense_form,
-    }
 
     return render(request, 'home.html')
 
@@ -195,9 +260,7 @@ def add_member(request, group_id):
         try:
             user_to_add = User.objects.get(username=username)
 
-            # Check if the user is not already a member of the group
             if not GroupMember.objects.filter(group=group, member=user_to_add).exists():
-                # Create a new GroupMember instance to associate the user with the group
                 GroupMember.objects.create(group=group, member=user_to_add)
                 messages.success(request, f'{user_to_add.username} added to the group.')
             else:
@@ -206,4 +269,17 @@ def add_member(request, group_id):
         except User.DoesNotExist:
             messages.error(request, f'User with username {username} does not exist.')
 
+    return redirect('group_details', group_id=group.id)
+
+def remove_expense(request, group_id, expense_id):
+    group = get_object_or_404(Group, id=group_id)
+    expense = get_object_or_404(Expense, id=expense_id)
+
+    if request.user != expense.payer:
+        messages.error(request, "You don't have permission to remove this expense.")
+        return redirect('group_details', group_id=group.id)
+    
+    expense.delete()
+
+    messages.success(request, 'Expense removed successfully.')
     return redirect('group_details', group_id=group.id)

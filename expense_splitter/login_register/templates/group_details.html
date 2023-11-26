@@ -50,7 +50,14 @@
             color: red;
         }
 
-        h2, h3, p, li {
+        h2 {
+            margin: 20px;
+        }
+        h3{
+            margin-bottom: 10px;
+            color:#4285f4;
+        }
+        p, li {
             margin-bottom: 10px;
         }
 
@@ -77,23 +84,34 @@
             border: none;
             cursor: pointer;
         }
+
+        .box {
+            border: 2px solid #ccc; 
+            padding: 10px; 
+            border-radius: 5px; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+            background-color: #4285f4; 
+            max-width: 50%; 
+            color: #fff;
+        }
     </style>
 </head>
 
 <body>
 
     <header>
-        <h1>{{ group.name }} Details</h1>
+        <h1>{{ group.name }}</h1>
     </header>
 
     <div class="container">
-
-        <h3>Group Members:</h3>
-        <ul>
+        <div class="box">
+        <h2>Group Members</h2>
+        <ol>
             {% for member in group_members %}
                 <li>{{ member.member.username }}</li>
             {% endfor %}
-        </ul>
+        </ol>
+        </div>
 
         <form method="post" action="add_member/">
             {% csrf_token %}
@@ -108,19 +126,22 @@
             {% endfor %}
         </div>
 
-        <h3>Total Expense: ${{ total_expense }}</h3>
-
         <h2>Expenses in this Group</h2>
         <ul>
             {% for item in expenses_with_payers %}
-                <li>
-                    {{ item.expense.description }} - Amount: ${{ item.expense.amount }} - Payer: {{ item.payer_name }}
-                </li>
+            <li>
+                {{ item.expense.description }} - Amount: ${{ item.expense.amount }} - Payer: {{ item.payer_name }}
+                {% if item.expense.payer == request.user %}
+                  <a href="{% url 'remove_expense' group_id=group.id expense_id=item.expense.id %}">Remove</a>
+                {% endif %}
+              </li>
             {% endfor %}
         </ul>
 
-        <!-- Display user balance -->
-        <p>Your balance in this group: ${{ user_balance }}</p>
+        
+        <br>
+        <h3>Your balance in this group: ${{ user_balance }}</h3>
+        <h3>Total Expense: ${{ total_expense }}</h3>
 
     </div>
 
